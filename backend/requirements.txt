@@ -1,7 +1,12 @@
 # Flask and Web Framework
-flask==3.0.0
-flask-cors==4.0.0
+# flask==3.0.0
+# flask-cors==4.0.0
 Werkzeug==3.0.1
+
+# Fast API
+fastapi
+uvicorn
+python-multipart
 
 #Pydantic
 pydantic
@@ -13,8 +18,8 @@ langchain-openai
 langchain-community
 
 # Google Gemini AI (instead of OpenAI)
-langchain-google-genai==2.0.5
-google-generativeai==0.8.3
+# langchain-google-genai==2.0.5
+# google-generativeai==0.8.3
 
 # Ollama Integration
 langchain-ollama

@@ -9,11 +9,6 @@ const ChatInterface = ({ pdfInfo, onReset }) => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Track index of the current streaming AI message
-  const currentAiIndexRef = useRef(null);
-  // Optional: keep a ref to the active EventSource so you can close it if needed
-  const eventSourceRef = useRef(null);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -31,103 +26,41 @@ const ChatInterface = ({ pdfInfo, onReset }) => {
     ]);
   }, [pdfInfo]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!input.trim() || loading) return;
 
-    const question = input.trim();
-
-    // Close any previous stream if still open
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-      eventSourceRef.current = null;
-    }
-
+    const userMessage = { type: 'user', content: input };
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setLoading(true);
 
-    // Append user + placeholder AI message in a single state update
-    setMessages(prev => {
-      const userMessage = { type: 'user', content: question };
-      const aiMessage = { type: 'ai', content: '', sources: [] };
-      const next = [...prev, userMessage, aiMessage];
-      currentAiIndexRef.current = next.length - 1; // index of aiMessage
-      return next;
-    });
+    try {
+      const response = await axios.post('http://localhost:5000/api/ask', {
+        question: input
+      });
 
-    const url = `http://localhost:5000/api/ask-stream?question=${encodeURIComponent(
-      question
-    )}`;
+      const aiMessage = {
+        type: 'ai',
+        content: response.data.answer,
+        sources: response.data.sources
+      };
 
-    const es = new EventSource(url);
-    eventSourceRef.current = es;
-
-    es.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-
-        // Token-level update
-        if (data.token) {
-            console.log('Data Token : ', data.token);
-          setMessages(prev => {
-            const copy = [...prev];
-            const idx = currentAiIndexRef.current;
-            if (idx == null || !copy[idx]) return copy;
-
-            const aiMsg = copy[idx];
-            copy[idx] = {
-              ...aiMsg,
-              content: (aiMsg.content || '') + data.token,
-            };
-            return copy;
-          });
-        }
-
-        // Final message with sources
-        if (data.final) {
-          setMessages(prev => {
-            const copy = [...prev];
-            const idx = currentAiIndexRef.current;
-            if (idx == null || !copy[idx]) return copy;
-
-            const aiMsg = copy[idx];
-            copy[idx] = {
-              ...aiMsg,
-              content: data.final,
-              sources: data.sources || aiMsg.sources || [],
-            };
-            return copy;
-          });
-
-          es.close();
-          eventSourceRef.current = null;
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error('Error parsing SSE data', err);
-      }
-    };
-
-    es.onerror = (err) => {
-      console.error('SSE error:', err);
-      es.close();
-      eventSourceRef.current = null;
-      setMessages(prev => [
-        ...prev,
-        { type: 'error', content: 'Failed to get streamed answer' },
-      ]);
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (err) {
+      const errorMessage = {
+        type: 'error',
+        content: err.response?.data?.error || 'Failed to get answer'
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setLoading(false);
-    };
+    }
   };
 
   const handleReset = async () => {
     try {
-      // Close any open stream on reset
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
-      }
       await axios.post('http://localhost:5000/api/reset');
       onReset();
     } catch (err) {
@@ -194,4 +127,4 @@ const ChatInterface = ({ pdfInfo, onReset }) => {
   );
 };
 
-export default ChatInterface;
+export default ChatInterfaceOld;

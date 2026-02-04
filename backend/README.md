@@ -35,3 +35,5 @@ Backend runs on http://localhost:5000
 - POST /api/ask - Ask question about PDF
 - POST /api/reset - Reset session
 - GET /api/health - Health check
+- GET /api/ask-stream - Stream the response
+- GET /api/ask-stream-test - Test response stream

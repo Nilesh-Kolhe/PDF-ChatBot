@@ -44,11 +44,13 @@ python -m venv venv
 # Activate virtual environment
 # On Mac/Linux:
 source venv/bin/activate
+# source venv312/bin/activate for Python version dependency
 # On Windows:
 venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
+# pip3 install -r requirements.txt for Python version dependency
 
 # Configure environment variables
 cp .env.example .env
@@ -57,6 +59,7 @@ cp .env.example .env
 
 # Run the backend server
 python app.py
+# python3 app.py for Python version dependency
 ```
 
 Backend will run on **http://localhost:5000**
