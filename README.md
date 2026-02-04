@@ -13,11 +13,11 @@ A full-stack application that allows users to upload PDF files and ask questions
 ## 🛠 Tech Stack
 
 ### Backend
-- Flask (Python web framework)
-- LangChain (LLM framework)
-- Ollama qwen2.5:14b
-- FAISS (Vector database)
-- PyPDF for PDF processing
+- FastAPI (Python Web Framework)
+- LangChain (LLM Framework)
+- Ollama qwen2.5:14b (Tool and LLM Model)
+- FAISS (Vector Database)
+- PyPDF (For PDF Processing)
 
 ### Frontend
 - React 18
@@ -91,10 +91,10 @@ Frontend will automatically open at **http://localhost:3000**
 ```
 pdf-qa-app/
 ├── backend/
-│   ├── app.py              # Flask application with API endpoints
-│   ├── requirements.txt    # Python dependencies
+│   ├── app.py              # FastAPI Application with API Endpoints
+│   ├── requirements.txt    # Python Dependencies
 │   ├── .env.example        # Environment variables template
-│   └── README.md          # Backend documentation
+│   └── README.md           # Backend documentation
 ├── frontend/
 │   ├── public/            # Static files
 │   │   ├── index.html
@@ -104,13 +104,14 @@ pdf-qa-app/
 │   │   │   ├── PDFUploader.js      # PDF upload component
 │   │   │   ├── PDFUploader.css
 │   │   │   ├── ChatInterface.js    # Chat UI component
+│   │   │   ├── ChatInterfaceOld.js    # Older Chat UI component
 │   │   │   └── ChatInterface.css
 │   │   ├── App.js         # Main App component
 │   │   ├── App.css        # Global styles
 │   │   ├── index.js       # React entry point
 │   │   └── index.css      # Base styles
 │   ├── package.json       # Node dependencies
-│   └── README.md         # Frontend documentation
+│   └── README.md          # Frontend documentation
 └──.gitignore
 └── README.md             # This file
 ```
@@ -120,24 +121,20 @@ pdf-qa-app/
 ### Chunk Size (in backend/app.py)
 ```python
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1500,      # Adjust this for larger/smaller chunks
-    chunk_overlap=400,    # Overlap between chunks
+    chunk_size=1500,      # Adjust this for Larger/Smaller Chunks
+    chunk_overlap=400,    # Overlap Between Chunks
 )
 ```
 
 ### Model Selection (in backend/app.py)
 ```python
-llm = OllamaLLM(
-    model="qwen2.5:14b",
-    temperature=0.1, # Initially 0.7
-    base_url="http://localhost:11434",
-    verbose=True
-)
-```
-
-### Max File Size (in backend/app.py)
-```python
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB default
+llm = ChatOpenAI(
+            model=OLLAMA_MODEL_NAME,
+            temperature=0.1,
+            base_url=OPENAI_BASE_URL,
+            api_key=OPENAI_API_KEY,
+            streaming=True,
+        )
 ```
 
 ## 🐛 Troubleshooting
@@ -184,9 +181,10 @@ MIT License - Feel free to use this project for learning and development.
 
 Built with ❤️ using:
 - React (https://react.dev/)
-- Flask (https://flask.palletsprojects.com/)
+- FastAPI (https://fastapi.tiangolo.com/)
 - LangChain (https://python.langchain.com/)
 - OpenAI (https://openai.com/)
+- Ollama (https://ollama.com)
 
 ## 📞 Support
 
